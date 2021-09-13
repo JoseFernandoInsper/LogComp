@@ -84,4 +84,4 @@ def expression_binop(p):
         raise AssertionError('Oops, this should not be possible!')
 
 parser = pg.build()
-print(parser.parse(lexer.lex(sys.argv[1])).eval())
+print(int(parser.parse(lexer.lex(sys.argv[1])).eval()))
