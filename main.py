@@ -43,7 +43,7 @@ class Mul(BinaryOp):
 
 class Div(BinaryOp):
     def eval(self):
-        return self.left.eval() / self.right.eval()
+        return int(self.left.eval() / self.right.eval())
 
 
 pg = ParserGenerator(
@@ -84,4 +84,4 @@ def expression_binop(p):
         raise AssertionError('Oops, this should not be possible!')
 
 parser = pg.build()
-print(int(parser.parse(lexer.lex(sys.argv[1])).eval()))
+print(parser.parse(lexer.lex(sys.argv[1])).eval())
