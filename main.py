@@ -5,8 +5,7 @@ import sys
 
 
 lg = LexerGenerator()
-
-lg.add('NUMBER', r'+?\d+')
+lg.add('NUMBER', r'[+-]?\d+')
 lg.add('PLUS', r'\+')
 lg.add('MINUS', r'-')
 lg.add('MUL', r'\*')
@@ -59,6 +58,18 @@ pg = ParserGenerator(
         ('left', ['MUL', 'DIV'])
     ]
 )
+
+@pg.production('expression : PLUS expression')
+@pg.production('expression : MINUS expression')
+def expression_unary(p):
+    unario = p[0].getstr()
+    print(unario)
+    n_unario = unario.count("-")
+    print(n_unario)
+    if (n_unario%2 == 0):
+        return Number(int(p[1]))
+    else : return Number(int(-p[1]))
+
 
 @pg.production('expression : NUMBER')
 def expression_number(p):
