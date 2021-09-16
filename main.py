@@ -5,7 +5,7 @@ import sys
 
 
 lg = LexerGenerator()
-lg.add('NUMBER', r'[+-]?\d+')
+lg.add('NUMBER', r'\d+')
 lg.add('PLUS', r'\+')
 lg.add('MINUS', r'-')
 lg.add('MUL', r'\*')
@@ -24,6 +24,8 @@ class Number(BaseBox):
 
     def eval(self):
         return self.value
+
+
 
 class BinaryOp(BaseBox):
     def __init__(self, left, right):
@@ -46,6 +48,17 @@ class Div(BinaryOp):
     def eval(self):
         return int(self.left.eval() / self.right.eval())
 
+class UnaryOp(BinaryOp):
+    def __init__(self, op, value):
+        self.op = op
+        self.value = value
+
+    def eval(self):
+        if self.op == 'POSITIVE':
+            return self.value.eval()
+        elif self.op == 'NEGATIVE':
+            return -(self.value.eval())
+
 
 pg = ParserGenerator(
     # A list of all token names, accepted by the parser.
@@ -62,13 +75,11 @@ pg = ParserGenerator(
 @pg.production('expression : PLUS expression')
 @pg.production('expression : MINUS expression')
 def expression_unary(p):
-    unario = p[0].getstr()
-    print(unario)
-    n_unario = unario.count("-")
-    print(n_unario)
-    if (n_unario%2 == 0):
-        return Number(int(p[1]))
-    else : return Number(int(-p[1]))
+    unario = p[0].gettokentype()
+    if (unario == 'PLUS'):
+        return UnaryOp('POSITIVE', p[1])
+    elif  (unario == 'MINUS'):
+        return UnaryOp('NEGATIVE', p[1])
 
 
 @pg.production('expression : NUMBER')
