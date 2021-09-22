@@ -31,7 +31,9 @@ class Number(BaseBox):
     def eval(self):
         return self.value
 
-
+class NoOp(Node):
+    def __init__(self, value):
+        self.value = value
 
 class BinOp(Node):
     def __init__(self, left, right):
