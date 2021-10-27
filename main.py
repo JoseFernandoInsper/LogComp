@@ -96,7 +96,7 @@ class Program():
 
     def eval(self):
         for i in self.value:
-            if(i.eval() != None):
+            if(i.eval() is not None):
                 print(i.eval())
 
 lg = LexerGenerator()
