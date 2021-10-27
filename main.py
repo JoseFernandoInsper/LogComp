@@ -110,7 +110,7 @@ lg.add('CLOSE_PARENS', r'\)')
 lg.add('FUNCAO', r'println')
 lg.add('ASSIGN', r'\=')
 lg.add('SEMI', r';')
-lg.add('VARIABLE_', r'[a-zA-Z_]([a-zA-Z_0-9]*|_[a-zA-Z_0-9]*)')
+lg.add('VARIABLE_', r'[a-zA-Z_]([\w]*|_[\w]*)')
 
 lg.ignore(r'\/\*(.*?)\*\/')
 lg.ignore('\s+')
@@ -186,10 +186,10 @@ def variable(p):
 @pg.production('expression : variable MINUS expression')
 @pg.production('expression : variable MUL expression')
 @pg.production('expression : variable DIV expression')
-@pg.production('expression : expression PLUS variable')
-@pg.production('expression : expression MINUS variable')
-@pg.production('expression : expression MUL variable')
-@pg.production('expression : expression DIV variable')
+@pg.production('expression : variable PLUS variable')
+@pg.production('expression : variable MINUS variable')
+@pg.production('expression : variable MUL variable')
+@pg.production('expression : variable DIV variable')
 
 def expression_binop(p):
     left = p[0]
