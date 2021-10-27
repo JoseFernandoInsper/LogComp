@@ -178,10 +178,6 @@ def assignment(p):
 def variable(p):
     return Peak(p[0].getstr())
 
-@pg.production('expression : expression PLUS expression')
-@pg.production('expression : expression MINUS expression')
-@pg.production('expression : expression MUL expression')
-@pg.production('expression : expression DIV expression')
 @pg.production('expression : variable PLUS expression')
 @pg.production('expression : variable MINUS expression')
 @pg.production('expression : variable MUL expression')
@@ -190,6 +186,11 @@ def variable(p):
 @pg.production('expression : variable MINUS variable')
 @pg.production('expression : variable MUL variable')
 @pg.production('expression : variable DIV variable')
+@pg.production('expression : expression PLUS expression')
+@pg.production('expression : expression MINUS expression')
+@pg.production('expression : expression MUL expression')
+@pg.production('expression : expression DIV expression')
+
 
 def expression_binop(p):
     left = p[0]
@@ -204,6 +205,10 @@ def expression_binop(p):
         return Div(left, right)
     else:
         raise AssertionError('Oops, this should not be possible!')
+
+@pg.error
+def error_handle(token):
+    raise ValueError(token)
 
 parser = pg.build()
 
