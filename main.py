@@ -96,7 +96,7 @@ class Program():
 
     def eval(self):
         for i in self.value:
-            if(i.eval() is not None):
+            if(i.eval() != None):
                 print(i.eval())
 
 lg = LexerGenerator()
@@ -208,7 +208,7 @@ def expression_binop(p):
 parser = pg.build()
 
 def main(entry):
-    print(parser.parse(lexer.lex(entry)).eval())
+    parser.parse(lexer.lex(entry)).eval()
 
 if __name__ == "__main__":
     main(sys.argv[1])
