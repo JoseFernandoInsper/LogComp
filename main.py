@@ -110,7 +110,7 @@ lg.add('CLOSE_PARENS', r'\)')
 lg.add('FUNCAO', r'println')
 lg.add('ASSIGN', r'\=')
 lg.add('SEMI', r';')
-lg.add('VARIABLE_', r'[a-zA-Z_]([\w]*|_[\w]*)')
+lg.add('VARIABLE_', r'[a-zA-Z_]([a-zA-Z_0-9]*|_[a-zA-Z_0-9]*)')
 
 lg.ignore(r'\/\*(.*?)\*\/')
 lg.ignore('\s+')
