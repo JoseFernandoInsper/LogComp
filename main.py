@@ -133,9 +133,9 @@ pg = ParserGenerator(
 @pg.production('program : statement program')
 def prog_state(p):
     if len(p) == 1 :
-        return(Program([p[1]]))
-    p[1].value += [p[0]]
-    return p[1]
+        return(Program([p[0]]))
+    p[0].value += [p[1]]
+    return p[0]
 
 @pg.production('statement : SEMI')
 @pg.production('statement : assignment SEMI')
