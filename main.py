@@ -16,18 +16,8 @@ lg.add('PRINT', r'println')
 lg.add('EQUAL', r'=')
 lg.add('SEMI', r';')
 lg.add('IDENTIFIER', r'[a-zA-Z_]([a-zA-Z_0-9]*|_[a-zA-Z_0-9]*)')
-lg.add('IF', r'if')
-lg.add('FOR', r'for')
-lg.add('WHILE', r'while')
-lg.add('EQUIVALENT', r'\==')
-lg.add('DIFF', r'\!=')
-lg.add('GET', r'\>=')
-lg.add('LET', r'\<=')
-lg.add('GT', r'\>')
-lg.add('LT', r'\<')
-lg.add('OR', r'\|\|')
-lg.add('AND', r'\&\&')
-lg.add('NOT', r'\!')
+#lg.add('IF', 'if')
+#lg.add('WHILE', r'while')
 
 
 lg.ignore(r'\/\*(.*?)\*\/')
@@ -83,38 +73,6 @@ class Div(BinOp):
     def eval(self):
         return int(self.children[0].eval() / self.children[1].eval())
 
-class And(BinOp):
-    def eval(self):
-        return self.children[0].eval() and self.children[1].eval()
-
-class Or(BinOp):
-    def eval(self):
-        return self.children[0].eval() or self.children[1].eval()
-
-class Equivalent(BinOp):
-    def eval(self):
-        return self.children[0].eval() == self.children[1].eval()
-
-class Diff(BinOp):
-    def eval(self):
-        return self.children[0].eval() != self.children[1].eval()
-
-class GET(BinOp):
-    def eval(self):
-        return self.children[0].eval() >= self.children[1].eval()
-
-class LET(BinOp):
-    def eval(self):
-        return self.children[0].eval() <= self.children[1].eval()
-
-class GT(BinOp):
-    def eval(self):
-        return self.children[0].eval() > self.children[1].eval()
-
-class LT(BinOp):
-    def eval(self):
-        return self.children[0].eval() < self.children[1].eval()
-
 class Print(Node):
     def __init__(self, value):
         self.value = value
@@ -165,15 +123,11 @@ class Program():
 
 pg = ParserGenerator(
     # A list of all token names, accepted by the parser.
-    ['NUMBER', 'OPEN_PARENS', 'CLOSE_PARENS', 'PLUS', 'MINUS', 'MUL', 'DIV', 'PRINT', 'EQUAL', 'SEMI', 'IDENTIFIER',
-    'IF', 'FOR', 'WHILE', 'EQUIVALENT', 'DIFF', 'GET', 'LET', 'GT', 'LT', 'OR', 'AND', 'NOT'
+    ['NUMBER','OPEN_PARENS', 'CLOSE_PARENS', 'PLUS', 'MINUS', 'MUL', 'DIV', 'PRINT', 'EQUAL', 'SEMI', 'IDENTIFIER'
     ],
     # A list of precedence rules with ascending precedence, to
     # disambiguate ambiguous production rules.
     precedence=[
-        ('left', ['NOT']),
-        ('left', ['OR', 'AND', 'EQUIVALENT', 'DIFF', 'GET', 'LET'] ),
-        ('left', ['GT', 'LT']),
         ('left', ['PLUS', 'MINUS']),
         ('left', ['MUL', 'DIV'])
     ]
@@ -187,9 +141,9 @@ def prog_state(p):
     p[0].value += [p[1]]
     return p[0]
 
-@pg.production('statement : SEMI')
 @pg.production('statement : assignment SEMI')
-@pg.production('statement : println')
+@pg.production('statement : SEMI')
+#@pg.production('statement : println')
 def statement(p):
     return p[0]
 
@@ -240,14 +194,6 @@ def variable(p):
 @pg.production('expression : expression MINUS expression')
 @pg.production('expression : expression MUL expression')
 @pg.production('expression : expression DIV expression')
-@pg.production('expression : expression AND expression')
-@pg.production('expression : expression OR expression')
-@pg.production('expression : expression EQUIVALENT expression')
-@pg.production('expression : expression DIFF expression')
-@pg.production('expression : expression GET expression')
-@pg.production('expression : expression LET expression')
-@pg.production('expression : expression GT expression')
-@pg.production('expression : expression LT expression')
 
 
 def expression_binop(p):
@@ -261,22 +207,6 @@ def expression_binop(p):
         return Mul(left, right)
     elif p[1].gettokentype() == 'DIV':
         return Div(left, right)
-    elif p[1].gettokentype() == 'AND':
-        return And(left, right)
-    elif p[1].gettokentype() == 'OR':
-        return Or(left, right)
-    elif p[1].gettokentype() == 'EQUIVALENT':
-        return Equivalent(left, right)
-    elif p[1].gettokentype() == 'DIFF':
-        return Diff(left, right)
-    elif p[1].gettokentype() == 'GET':
-        return GET(left, right)
-    elif p[1].gettokentype() == 'LET':
-        return LET(left, right)
-    elif p[1].gettokentype() == 'GT':
-        return GT(left, right)
-    elif p[1].gettokentype() == 'LT':
-        return LT(left, right)
     else:
         raise AssertionError('Oops, this should not be possible!')
 
