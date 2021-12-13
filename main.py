@@ -3,6 +3,27 @@ from rply.token import BaseBox
 from rply import ParserGenerator
 import sys
 
+#LEXER
+lg = LexerGenerator()
+lg.add('NUMBER', r'\d+')
+lg.add('PLUS', r'\+')
+lg.add('MINUS', r'-')
+lg.add('MUL', r'\*')
+lg.add('DIV', r'/')
+lg.add('OPEN_PARENS', r'\(')
+lg.add('CLOSE_PARENS', r'\)')
+lg.add('PRINT', r'println')
+lg.add('EQUAL', r'=')
+lg.add('SEMI', r';')
+lg.add('IDENTIFIER', r'[a-zA-Z_]([a-zA-Z_0-9]*|_[a-zA-Z_0-9]*)')
+#lg.add('IF', 'if')
+#lg.add('WHILE', r'while')
+
+
+lg.ignore(r'\/\*(.*?)\*\/')
+lg.ignore('\s+')
+
+lexer = lg.build()
 
 class Node(BaseBox):
     def __init__(self, value):
@@ -20,6 +41,17 @@ class Number(BaseBox):
 class NoOp(Node):
     def __init__(self, value):
         self.value = value
+
+class UnOp(Node):
+    def __init__(self, op, value):
+        self.value = op
+        self.children = [value]
+
+    def eval(self):
+        if self.value == 'POSITIVE':
+            return self.children[0].eval()
+        elif self.value == 'NEGATIVE':
+            return -(self.children[0].eval())
 
 class BinOp(Node):
     def __init__(self, left, right):
@@ -41,7 +73,7 @@ class Div(BinOp):
     def eval(self):
         return int(self.children[0].eval() / self.children[1].eval())
 
-class Func(Node):
+class Print(Node):
     def __init__(self, value):
         self.value = value
 
@@ -79,16 +111,6 @@ class IntVal(Node):
     def eval(self):
         return int(self.value)
 
-class UnOp(Node):
-    def __init__(self, op, value):
-        self.value = op
-        self.children = [value]
-
-    def eval(self):
-        if self.value == 'POSITIVE':
-            return self.children[0].eval()
-        elif self.value == 'NEGATIVE':
-            return -(self.children[0].eval())
 
 class Program():
     def __init__(self, value):
@@ -96,30 +118,12 @@ class Program():
 
     def eval(self):
         for i in self.value:
-            if(i.eval() is not None):
+            if(i.eval() != None):
                 print(i.eval())
-
-lg = LexerGenerator()
-lg.add('NUMBER', r'\d+')
-lg.add('PLUS', r'\+')
-lg.add('MINUS', r'-')
-lg.add('MUL', r'\*')
-lg.add('DIV', r'/')
-lg.add('OPEN_PARENS', r'\(')
-lg.add('CLOSE_PARENS', r'\)')
-lg.add('FUNCAO', r'println')
-lg.add('ASSIGN', r'\=')
-lg.add('SEMI', r'\;')
-lg.add('VARIABLE_', r'[a-zA-Z_]([\w]*|_[\w]*)')
-
-lg.ignore(r'\/\*(.*?)\*\/')
-lg.ignore('\s+')
-
-lexer = lg.build()
 
 pg = ParserGenerator(
     # A list of all token names, accepted by the parser.
-    ['NUMBER','OPEN_PARENS', 'CLOSE_PARENS', 'PLUS', 'MINUS', 'MUL', 'DIV', 'FUNCAO', 'ASSIGN', 'SEMI', 'VARIABLE_'
+    ['NUMBER','OPEN_PARENS', 'CLOSE_PARENS', 'PLUS', 'MINUS', 'MUL', 'DIV', 'PRINT', 'EQUAL', 'SEMI', 'IDENTIFIER'
     ],
     # A list of precedence rules with ascending precedence, to
     # disambiguate ambiguous production rules.
@@ -130,7 +134,7 @@ pg = ParserGenerator(
 )
 
 @pg.production('program : statement')
-@pg.production('program : program statement')
+@pg.production('program : program statement ')
 def prog_state(p):
     if len(p) == 1 :
         return(Program([p[0]]))
@@ -144,10 +148,10 @@ def statement(p):
     return p[0]
 
 
-@pg.production('println : FUNCAO OPEN_PARENS expression CLOSE_PARENS SEMI')
-@pg.production('println : FUNCAO OPEN_PARENS variable CLOSE_PARENS SEMI')
+@pg.production('println : PRINT OPEN_PARENS expression CLOSE_PARENS SEMI')
+@pg.production('println : PRINT OPEN_PARENS variable CLOSE_PARENS SEMI')
 def println(p):
-    return Func(p[2])
+    return Print(p[2])
 
 @pg.production('expression : PLUS expression')
 @pg.production('expression : MINUS expression')
@@ -170,7 +174,7 @@ def expression_parens(p):
     return p[1]
 
 
-@pg.production('assignment : VARIABLE_ ASSIGN expression ')
+@pg.production('assignment : VARIABLE_ EQUAL expression ')
 def assignment(p):
     return Store(p[0].getstr(), p[2])
 
