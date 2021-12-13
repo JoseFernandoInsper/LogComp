@@ -118,8 +118,9 @@ class Program():
 
     def eval(self):
         for i in self.value:
-            if(i.eval() != None):
-                print(i.eval())
+            if not isinstance(i, type(None)):
+                if(i.eval() != None):
+                    print(i.eval())
 
 pg = ParserGenerator(
     # A list of all token names, accepted by the parser.
