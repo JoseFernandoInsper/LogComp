@@ -171,11 +171,11 @@ pg = ParserGenerator(
     # A list of precedence rules with ascending precedence, to
     # disambiguate ambiguous production rules.
     precedence=[
-        ('left', ['PLUS', 'MINUS']),
-        ('left', ['MUL', 'DIV']),
         ('left', ['NOT']),
         ('left', ['OR', 'AND', 'EQUIVALENT', 'DIFF', 'GET', 'LET'] ),
-        ('left', ['GT', 'LT'])
+        ('left', ['GT', 'LT']),
+        ('left', ['PLUS', 'MINUS']),
+        ('left', ['MUL', 'DIV'])
     ]
 )
 
@@ -220,11 +220,11 @@ def expression_parens(p):
     return p[1]
 
 
-@pg.production('assignment : VARIABLE_ EQUAL expression ')
+@pg.production('assignment : IDENTIFIER EQUAL expression ')
 def assignment(p):
     return Store(p[0].getstr(), p[2])
 
-@pg.production('variable : VARIABLE_')
+@pg.production('variable : IDENTIFIER')
 def variable(p):
     return Peak(p[0].getstr())
 
