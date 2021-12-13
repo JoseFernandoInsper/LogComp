@@ -143,7 +143,7 @@ def prog_state(p):
 
 @pg.production('statement : assignment SEMI')
 @pg.production('statement : SEMI')
-#@pg.production('statement : println')
+@pg.production('statement : println')
 def statement(p):
     return p[0]
 
