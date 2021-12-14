@@ -33,6 +33,7 @@ lg.add('LT', r'\<')
 lg.add('OR', r'\|\|')
 lg.add('AND', r'\&\&')
 lg.add('NOT', r'\!')
+lg.add('READ', r'readln')
 
 
 lg.ignore(r'\/\*(.*?)\*\/')
@@ -122,6 +123,13 @@ class LT(BinOp):
     def eval(self):
         return self.children[0].eval() < self.children[1].eval()
 
+class Readln(Node):
+    def __init__(self, value):
+        self.value = value
+
+    def eval(self):
+        return int(input())
+
 class Print(Node):
     def __init__(self, value):
         self.value = value
@@ -194,7 +202,7 @@ class Program():
 pg = ParserGenerator(
     # A list of all token names, accepted by the parser.
     ['NUMBER', 'OPEN_PARENS', 'CLOSE_PARENS', 'OPEN_CHAVE', 'CLOSE_CHAVE','PLUS', 'MINUS', 'MUL', 'DIV', 'PRINT', 'EQUAL', 'SEMI', 'IDENTIFIER',
-    'IF', 'ELSE', 'WHILE', 'EQUIVALENT', 'DIFF', 'GET', 'LET', 'GT', 'LT', 'OR', 'AND', 'NOT'
+    'IF', 'ELSE', 'WHILE', 'EQUIVALENT', 'DIFF', 'GET', 'LET', 'GT', 'LT', 'OR', 'AND', 'NOT', 'READ'
     ],
     # A list of precedence rules with ascending precedence, to
     # disambiguate ambiguous production rules.
@@ -220,8 +228,7 @@ def prog_state(p):
     return p[0]
 
 @pg.production('statement : println')
-@pg.production('statement : while')
-@pg.production('statement : if')
+@pg.production('statement : read')
 def statement(p):
     return p[0]
 
@@ -233,21 +240,25 @@ def statement(p):
     else:
         return None
 
+@pg.production('expression : while')
+@pg.production('expression : if')
+def expression_bool(p):
+    return p[0]
+
 @pg.production('println : PRINT OPEN_PARENS expression CLOSE_PARENS SEMI')
 @pg.production('println : PRINT OPEN_PARENS variable CLOSE_PARENS SEMI')
 def println(p):
     return Print(p[2])
 
-@pg.production('if : IF OPEN_PARENS expression CLOSE_PARENS OPEN_CHAVE input CLOSE_CHAVE ELSE OPEN_CHAVE input CLOSE_CHAVE')
-@pg.production('if : IF OPEN_PARENS expression CLOSE_PARENS OPEN_CHAVE input CLOSE_CHAVE')
+@pg.production('if : IF OPEN_PARENS bollean-expr CLOSE_PARENS OPEN_CHAVE input CLOSE_CHAVE ELSE OPEN_CHAVE input CLOSE_CHAVE')
+@pg.production('if : IF OPEN_PARENS bollean-expr CLOSE_PARENS OPEN_CHAVE input CLOSE_CHAVE')
 def IfFunc(p):
-    condElm = p[2]
-    iftrue = p[5]
-    if len(p) > 7:
-        elsetrue = p[9]
-        return IfElse([condElm, iftrue, elsetrue])
+    booleanxp = p[2]
+    if booleanxp:
+        return p[5]
     else:
-        return IfElse([condElm, iftrue, None])
+        if len(p) > 7:
+            return p[9]
 
 
 @pg.production('while : WHILE OPEN_PARENS expression CLOSE_PARENS OPEN_CHAVE input CLOSE_CHAVE')
@@ -255,6 +266,10 @@ def WhileFunc(p):
     condElm = p[2]
     loop = p[4]
     return While([condElm, loop])
+
+@pg.production('read : READ OPEN_PARENS CLOSE_PARENS SEMI')
+def ReadLn(p):
+    return Readln()
 
 @pg.production('expression : PLUS expression')
 @pg.production('expression : MINUS expression')
@@ -300,15 +315,23 @@ def variable(p):
 @pg.production('expression : expression MUL expression')
 @pg.production('expression : expression DIV expression')
 ###
-@pg.production('expression : expression AND expression')
-@pg.production('expression : expression OR expression')
-@pg.production('expression : expression EQUIVALENT expression')
-@pg.production('expression : expression DIFF expression')
-@pg.production('expression : expression GET expression')
-@pg.production('expression : expression LET expression')
-@pg.production('expression : expression GT expression')
-@pg.production('expression : expression LT expression')
+@pg.production('bollean-expr : bollean-expr AND bollean-expr')
+@pg.production('bollean-expr : bollean-expr OR bollean-expr')
+@pg.production('bollean-expr : bollean-expr EQUIVALENT expression')
+@pg.production('bollean-expr : bollean-expr DIFF bollean-expr')
+@pg.production('bollean-expr : bollean-expr GET bollean-expr')
+@pg.production('bollean-expr : bollean-expr LET bollean-expr')
+@pg.production('bollean-expr : bollean-expr GT bollean-expr')
+@pg.production('bollean-expr : bollean-expr LT bollean-expr')
 
+@pg.production('bollean-expr : expression AND expression')
+@pg.production('bollean-expr : expression OR expression')
+@pg.production('bollean-expr : expression EQUIVALENT expression')
+@pg.production('bollean-expr : expression DIFF expression')
+@pg.production('bollean-expr : expression GET expression')
+@pg.production('bollean-expr : expression LET expression')
+@pg.production('bollean-expr : expression GT expression')
+@pg.production('bollean-expr : expression LT expression')
 
 def expression_binop(p):
     left = p[0]
