@@ -119,7 +119,7 @@ class Program():
     def eval(self):
         for i in self.value:
             if not isinstance(i, type(None)):
-                if(i.eval() != None):
+                if(i.eval() is not None):
                     print(i.eval())
 
 pg = ParserGenerator(
