@@ -119,7 +119,7 @@ class Program():
     def eval(self):
         for i in self.value:
             if not isinstance(i, type(None)):
-                if(i.eval() is not None):
+                if(i.eval() != None):
                     print(i.eval())
 
 pg = ParserGenerator(
@@ -149,7 +149,10 @@ def statement(p):
 @pg.production('statement : assignment SEMI')
 @pg.production('statement : SEMI')
 def statement(p):
-    return p[0]
+    if len(p) > 1:
+        return p[0]
+    else:
+        return None
 
 
 @pg.production('println : PRINT OPEN_PARENS expression CLOSE_PARENS SEMI')
