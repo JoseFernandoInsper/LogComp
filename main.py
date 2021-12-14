@@ -135,7 +135,7 @@ pg = ParserGenerator(
 )
 
 @pg.production('program : statement')
-@pg.production('program : program statement ')
+@pg.production('program : program statement')
 def prog_state(p):
     if len(p) == 1 :
         return(Program([p[0]]))
