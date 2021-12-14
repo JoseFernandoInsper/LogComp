@@ -14,7 +14,7 @@ lg.add('OPEN_PARENS', r'\(')
 lg.add('CLOSE_PARENS', r'\)')
 lg.add('PRINT', r'println')
 lg.add('EQUAL', r'=')
-lg.add('SEMI', r';')
+lg.add('SEMI', r'\;')
 lg.add('IDENTIFIER', r'[a-zA-Z_]([a-zA-Z_0-9]*|_[a-zA-Z_0-9]*)')
 #lg.add('IF', 'if')
 #lg.add('WHILE', r'while')
@@ -142,9 +142,12 @@ def prog_state(p):
     p[0].value += [p[1]]
     return p[0]
 
+@pg.production('statement : println')
+def statement(p):
+    return p[0]
+
 @pg.production('statement : assignment SEMI')
 @pg.production('statement : SEMI')
-@pg.production('statement : println')
 def statement(p):
     return p[0]
 
